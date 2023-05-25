@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 
 # Define the board dimensions
 ROWS = 6
@@ -22,6 +23,7 @@ window.title("Connect 4")
 # Create the canvas to draw the game board
 canvas = tk.Canvas(window, width=COLS * 50, height=(ROWS + 1) * 50)
 canvas.pack()
+canvas["state"] = tk.DISABLED
 
 # Draw the horizontal lines of the board
 for row in range(ROWS + 1):
@@ -33,14 +35,47 @@ for col in range(COLS + 1):
 
 # Initialize the players
 current_player = PLAYER1
-player1_name = "Player 1"
-player2_name = "Player 2"
+player1_name = ""
+player2_name = ""
+
+
+# Function to start the game after getting player names
+def start_game():
+    global player1_name
+    global player2_name
+    player1_name = player1_entry.get()
+    player2_name = player2_entry.get()
+    if player1_name and player2_name:
+        player1_label.config(text=player1_name)
+        player2_label.config(text=player2_name)
+        player1_entry.config(state=tk.DISABLED)
+        player2_entry.config(state=tk.DISABLED)
+        start_button.config(state=tk.DISABLED)
+        canvas["state"] = tk.NORMAL
+
+
+# Create labels and entry fields for player names
+player1_label = tk.Label(window, text="Player 1:")
+player1_label.pack()
+player1_entry = tk.Entry(window)
+player1_entry.pack()
+
+player2_label = tk.Label(window, text="Player 2:")
+player2_label.pack()
+player2_entry = tk.Entry(window)
+player2_entry.pack()
+
+start_button = tk.Button(window, text="Start Game", command=start_game)
+start_button.pack()
 
 
 # Define the function to handle player moves
-def make_move(col):
+def make_move(event):
     global board
     global current_player
+
+    # Calculate the column based on the mouse click position
+    col = event.x // 50
 
     # Find the first empty slot in the chosen column
     row = ROWS - 1
@@ -66,7 +101,7 @@ def make_move(col):
             winner = player2_name
         else:
             winner = player1_name
-        tk.messagebox.showinfo("Game Over", "Congratulations " + winner + ", you won!")
+        messagebox.showinfo("Game Over", "Congratulations " + winner + ", you won!")
         window.quit()
 
 
@@ -91,6 +126,7 @@ def check_win():
         for col in range(COLS - 3):
             if board[row][col] == board[row + 1][col + 1] == board[row + 2][col + 2] == board[row + 3][col + 3] != 0:
                 return True
+
     # Check for a win in diagonal lines (bottom-left to top-right)
     for row in range(3, ROWS):
         for col in range(COLS - 3):
@@ -99,5 +135,9 @@ def check_win():
 
     # If no win was found, return False
     return False
+
+
+# Bind the mouse click event to the make_move function
+canvas.bind("<Button-1>", make_move)
 
 window.mainloop()
