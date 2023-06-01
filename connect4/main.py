@@ -10,6 +10,8 @@ PLAYER1 = 1
 PLAYER2 = 2
 PLAYER1_PIECE = 'X'
 PLAYER2_PIECE = 'O'
+PLAYER1_COLOR = 'red'
+PLAYER2_COLOR = '#FFA500'
 
 # Create the empty game board
 board = []
@@ -40,18 +42,23 @@ player2_name = ""
 
 
 # Function to start the game after getting player names
-def start_game():
+def check_player_names():
     global player1_name
     global player2_name
+
     player1_name = player1_entry.get()
     player2_name = player2_entry.get()
+
     if player1_name and player2_name:
-        player1_label.config(text=player1_name)
-        player2_label.config(text=player2_name)
+        player1_label.config(text=player1_name, fg=PLAYER1_COLOR)
+        player2_label.config(text=player2_name, fg=PLAYER2_COLOR)
         player1_entry.config(state=tk.DISABLED)
         player2_entry.config(state=tk.DISABLED)
         start_button.config(state=tk.DISABLED)
         canvas["state"] = tk.NORMAL
+        canvas.bind("<Button-1>", make_move)  # Bind the mouse click event after player names are entered
+    else:
+        messagebox.showwarning("Incomplete Information", "Please enter both player names.")
 
 
 # Create labels and entry fields for player names
@@ -65,7 +72,7 @@ player2_label.pack()
 player2_entry = tk.Entry(window)
 player2_entry.pack()
 
-start_button = tk.Button(window, text="Start Game", command=start_game)
+start_button = tk.Button(window, text="Start Game", command=check_player_names)
 start_button.pack()
 
 
@@ -74,6 +81,11 @@ def make_move(event):
     global board
     global current_player
 
+    # Check if player names are entered before allowing moves
+    if not player1_name or not player2_name:
+        return
+
+    # Rest of the code...
     # Calculate the column based on the mouse click position
     col = event.x // 50
 
@@ -136,8 +148,5 @@ def check_win():
     # If no win was found, return False
     return False
 
-
-# Bind the mouse click event to the make_move function
-canvas.bind("<Button-1>", make_move)
 
 window.mainloop()
